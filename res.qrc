@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/">
+        <file>image/basic.png</file>
+        <file>image/extend.png</file>
+        <file>image/list.png</file>
+        <file>image/filter.png</file>
+    </qresource>
+</RCC>
