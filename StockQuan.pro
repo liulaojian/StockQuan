@@ -14,6 +14,7 @@ SOURCES += \
     Framework/data/StockDataLoadRunable.cpp \
     Framework/data/StockDataMgr.cpp \
     Framework/data/StockTdxFileData.cpp \
+    Framework/function/FunTimeSharingDirectUp.cpp \
     Ui/StockChart.cpp \
     dlgstocklist.cpp \
     main.cpp \
@@ -27,6 +28,7 @@ HEADERS += \
     Framework/data/StockDataMgr.h \
     Framework/data/StockDataStruct.h \
     Framework/data/StockTdxFileData.h \
+    Framework/function/FunTimeSharingDirectUp.h \
     Ui/StockChart.h \
     dlgstocklist.h \
     mainwindow.h \

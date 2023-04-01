@@ -66,3 +66,5 @@ typedef struct StockDataInfoTag
 } StockDataInfo;
 
 typedef QVector<QSharedPointer<StockDataInfo> > VecStockDataInfo;
+
+

@@ -31,6 +31,9 @@ public:
 
     virtual QSharedPointer<StockDataInfo> GetLastStockDataInfo(int mDataType)=0;
 
+    //获取指定日期前prenums个数据
+    virtual QVector<QSharedPointer<StockDataInfo>> GetStockDataInfoPreOfIndex(QString strDate,QString strTime,int mDataType,int prenums)=0;
+
     virtual bool IsDataTypeValid(int mDataType)=0;
 
     virtual bool ReadAllStockDataFromStore(void)=0;

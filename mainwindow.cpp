@@ -9,6 +9,8 @@
 
 #include "StockDataMgr.h"
 
+#include "FunTimeSharingDirectUp.h"
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -98,7 +100,23 @@ void MainWindow::btn_stocklist_click()
 void MainWindow::btn_jetteonfilter_click()
 {
     //QMessageBox::information(this,"注意","btn_jetteonfilter_click");
-    ui->stackedWidget->setCurrentIndex(1);
+    //ui->stackedWidget->setCurrentIndex(1);
+
+    StockData* pStockData=stockDataMgr()->FindStockData("SH000001");
+    QSharedPointer<StockDataInfo> pStockDataInfo=pStockData->GetLastStockDataInfo(STOCK_DATA_TYPE_5MIN);
+    QString strDateTime=pStockDataInfo->GetDateTime();
+
+    QVector<QString> vecStockList=stockDataMgr()->GetStockCodeList();
+
+    FunTimeSharingDirectUp mFunTimeSharingDirectUp;
+
+    QVector<QString> vecResult=mFunTimeSharingDirectUp.doFunTimeSharingDirectUp(vecStockList,strDateTime);
+
+    for(int i=0;i<vecResult.size();i++)
+    {
+        qDebug()<<vecResult[i];
+    }
+
 }
 
 

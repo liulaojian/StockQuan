@@ -55,6 +55,7 @@ bool StockDataMgr::Init(void)
         pStockTdxFileData->SetStockMin5FilePath(vecStockFilePathXmlInfo[i]->strStockMin5Path);
         connect(pStockTdxFileData, SIGNAL(data_process(int)), this, SLOT(solt_data_process(int)));
         vecStockData.push_back(pStockTdxFileData);
+        vecStockCodeList.push_back(strStockCode);
     }
 
     mMaxStockDataNums=vecStockData.size();
@@ -94,6 +95,8 @@ bool StockDataMgr::Init(void)
 
     return true;
 }
+
+
 
 bool  StockDataMgr::IsExpStock(QString strStockCode)
 {

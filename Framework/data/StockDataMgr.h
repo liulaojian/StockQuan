@@ -28,6 +28,7 @@ public:
 
    QVector<StockData*> & GetStockDataList(void) {return vecStockData;}
 
+   QVector<QString> & GetStockCodeList(void) {return vecStockCodeList;}
    bool  IsExpStock(QString strStockCode);
 
 signals:
@@ -43,6 +44,8 @@ private:
     bool bInit=false;
     QVector<StockData*> vecStockData;
     QVector<StockFilePathXmlInfo*> vecStockFilePathXmlInfo;
+
+    QVector<QString> vecStockCodeList;
     int mMaxStockDataNums=0;
 };
 
