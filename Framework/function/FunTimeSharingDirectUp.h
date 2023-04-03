@@ -21,6 +21,8 @@ public:
 
     void SetUpValue(float value) {fUpValue=value;}
     void SetDownValue(float value) {fDownValue=value;}
+
+    QString GetInputDateTime(void) {return strInputDateTime;}
 protected:
     void run() Q_DECL_OVERRIDE;
 

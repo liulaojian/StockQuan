@@ -23,13 +23,15 @@ public:
     virtual QVector<QSharedPointer<StockDataInfo> > &  GetAllStockDataInfoList(int mDataType);
 
     virtual QSharedPointer<StockDataInfo> GetLastStockDataInfo(int mDataType);
-
+    virtual QSharedPointer<StockDataInfo> GetFirstStockDataInfo(int mDataType);
     //获取指定日期前prenums个数据
     virtual QVector<QSharedPointer<StockDataInfo>> GetStockDataInfoPreOfIndex(QString strDate,QString strTime,int mDataType,int prenums);
 
     virtual bool IsDataTypeValid(int mDataType);
 
     virtual int  GetStockDataInfoSize(int mDataType);
+
+    virtual QString GetNearestStockDateTime(QString strDate,QString strTime,int mDataType);
 
     virtual bool ReadAllStockDataFromStore(void);
     virtual bool WriteAllStockDataToStore(void);
@@ -51,7 +53,7 @@ private:
     int GetNearestStockDayIndex(QString strDate);
 
     int GetStockMin5Index(QString strDateTime);
-    int GetNearestStockMin5Index(QString strDate);
+    int GetNearestStockMin5Index(QString strDateTime);
 private:
     bool LoadStockDayFile(void);
     //加载股票数据，利用指数数据进行修补（主要是停牌时修补)

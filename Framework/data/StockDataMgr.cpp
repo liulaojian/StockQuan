@@ -87,7 +87,7 @@ bool StockDataMgr::Init(void)
 
     //QVector<QSharedPointer<StockDataInfo>> vecData=pExpStockData->GetStockDataInfoList("2022/04/01","2022/05/06");
 
-    QThreadPool::globalInstance()->setMaxThreadCount(10);
+    QThreadPool::globalInstance()->setMaxThreadCount(12);
 
     for(int i=0;i<vecStockData.size();i++)
     {

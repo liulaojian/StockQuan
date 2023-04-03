@@ -19,6 +19,7 @@ SOURCES += \
     Ui/StockChart.cpp \
     dlgfunwait.cpp \
     dlgresult.cpp \
+    dlgselectdate.cpp \
     dlgstocklist.cpp \
     dlgtimesharingdirectup.cpp \
     main.cpp \
@@ -38,6 +39,7 @@ HEADERS += \
     Ui/StockChart.h \
     dlgfunwait.h \
     dlgresult.h \
+    dlgselectdate.h \
     dlgstocklist.h \
     dlgtimesharingdirectup.h \
     mainwindow.h \
@@ -46,6 +48,7 @@ HEADERS += \
 FORMS += \
     dlgfunwait.ui \
     dlgresult.ui \
+    dlgselectdate.ui \
     dlgstocklist.ui \
     dlgtimesharingdirectup.ui \
     mainwindow.ui \

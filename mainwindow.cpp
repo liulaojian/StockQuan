@@ -13,6 +13,7 @@
 #include "dlgtimesharingdirectup.h"
 
 #include "dlgresult.h"
+#include "dlgselectdate.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -104,10 +105,27 @@ void MainWindow::btn_jetteonfilter_click()
 {
     //QMessageBox::information(this,"注意","btn_jetteonfilter_click");
     //ui->stackedWidget->setCurrentIndex(1);
+    DlgSelectDate dlgSelDate;
+    int ret=dlgSelDate.exec();
+    if (ret!=QDialog::Accepted)
+        return;
+
+    QDate mSelectDate=dlgSelDate.GetSelectDate();
+
+    QString strSelectDate=mSelectDate.toString("yyyy/MM/dd");
+
+    StockData* pExpStockData=stockDataMgr()->FindStockData("SH000001");
+
+    QString strSelectDateTime=pExpStockData->GetNearestStockDateTime(strSelectDate,"",STOCK_DATA_TYPE_DAY);
+
+    if(strSelectDateTime=="")
+            return ;
+
+    strSelectDateTime+=" 15:00";
 
     DlgTimeSharingDirectUp dlg;
 
-    int ret=dlg.exec();
+    ret=dlg.exec();
 
     if (ret!=QDialog::Accepted)
         return;
@@ -115,9 +133,9 @@ void MainWindow::btn_jetteonfilter_click()
     float fUpValue=dlg.GetUpValue();
     float fDownValue=dlg.GetDownValue();
 
-    StockData* pStockData=stockDataMgr()->FindStockData("SH000001");
-    QSharedPointer<StockDataInfo> pStockDataInfo=pStockData->GetLastStockDataInfo(STOCK_DATA_TYPE_5MIN);
-    QString strDateTime=pStockDataInfo->GetDateTime();
+
+    //QSharedPointer<StockDataInfo> pStockDataInfo=pStockData->GetLastStockDataInfo(STOCK_DATA_TYPE_5MIN);
+    QString strDateTime=strSelectDateTime;//pStockDataInfo->GetDateTime();
 
     QVector<QString> vecStockList=stockDataMgr()->GetStockCodeList();
 
@@ -131,7 +149,11 @@ void MainWindow::btn_jetteonfilter_click()
         qDebug()<<vecResult[i];
     }
 
+    QString strTitle="结果列表";
+    strTitle+="  选择时间: ";
+    strTitle+=strSelectDateTime;
     DlgResult dlgResult;
+    dlgResult.setWindowTitle(strTitle);
     dlgResult.SetResultList(vecResult);
     dlgResult.InitList();
     dlgResult.exec();

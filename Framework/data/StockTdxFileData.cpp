@@ -426,6 +426,24 @@ QSharedPointer<StockDataInfo> StockTdxFileData::GetLastStockDataInfo(int mDataTy
         return nullptr;
 }
 
+QSharedPointer<StockDataInfo> StockTdxFileData::GetFirstStockDataInfo(int mDataType)
+{
+    if(mDataType==STOCK_DATA_TYPE_DAY)
+    {
+        if(vecStockDayData.size()==0)
+            return nullptr;
+        return vecStockDayData[0];
+    }
+    else if(mDataType==STOCK_DATA_TYPE_5MIN)
+    {
+       if(vecStockMin5Data.size()==0)
+           return nullptr;
+       return vecStockMin5Data[0];
+    }
+    else
+        return nullptr;
+}
+
 
 QVector<QSharedPointer<StockDataInfo>> StockTdxFileData::GetStockDataInfoPreOfIndex(QString strDate,QString strTime,int mDataType,int prenums)
 {
@@ -485,6 +503,30 @@ int  StockTdxFileData::GetStockDataInfoSize(int mDataType)
         return vecStockMin5Data.size();
     else
         return 0;
+}
+
+QString StockTdxFileData::GetNearestStockDateTime(QString strDate,QString strTime,int mDataType)
+{
+    if(mDataType==STOCK_DATA_TYPE_DAY)
+    {
+        int index=GetNearestStockDayIndex(strDate);
+        if(index<0)
+            return "";
+        return vecStockDayData[index]->GetDate();
+    }
+    else if(mDataType==STOCK_DATA_TYPE_5MIN)
+    {
+        QString strDateTime=strDate;
+        strDateTime+=" ";
+        strDateTime+=strTime;
+        int index=GetNearestStockMin5Index(strDateTime);
+        if(index<0)
+            return "";
+        return vecStockMin5Data[index]->GetDateTime();
+    }
+    else
+        return "";
+
 }
 //--------------------------------------------------------------------------
 static int m_data_index=0;
