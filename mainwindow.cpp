@@ -82,7 +82,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->tableWidget,SIGNAL(customContextMenuRequested(const QPoint&)),this,SLOT(solt_stocklist_customContextMenuRequested(const QPoint&)));
     connect(m_pStockListMenu,SIGNAL(triggered(QAction *)),this,SLOT(solt_stockActionOpen_triggered(QAction *)));
     //InitStockList();
-
+    this->setWindowTitle("聚火选股小助手");
 
 }
 
@@ -122,7 +122,8 @@ void MainWindow::btn_jetteonfilter_click()
     QVector<QString> vecStockList=stockDataMgr()->GetStockCodeList();
 
     QSharedPointer<FunTimeSharingDirectUp> pFunTimeSharingDirectUp=QSharedPointer<FunTimeSharingDirectUp>(new FunTimeSharingDirectUp());
-
+    pFunTimeSharingDirectUp->SetUpValue(fUpValue);
+    pFunTimeSharingDirectUp->SetDownValue(fDownValue);
     QVector<QString> vecResult=pFunTimeSharingDirectUp->doFunTimeSharingDirectUp(vecStockList,strDateTime);
 
     for(int i=0;i<vecResult.size();i++)
