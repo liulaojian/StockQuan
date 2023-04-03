@@ -10,6 +10,8 @@
 #include <QtGlobal>
 #include "StockDataMgr.h"
 
+#include "Utils.h"
+
 StockTdxFileData::StockTdxFileData(QString stockcode):StockData(stockcode)
 {
 
@@ -359,15 +361,15 @@ int StockTdxFileData::GetNearestStockMin5Index(QString strDateTime)
 
     for(int i=0;i<vecStockMin5Data.size();i++)
     {
-       pStockMin5Data=vecStockMin5Data[i];
-       if(!pStockMin5Data)
-           continue;
-       QString strTemp=pStockMin5Data->GetDateTime().left(5);
-       if(strTemp==strTempDate)
-       {
-           mBeginPos=i;
-           break;
-       }
+      pStockMin5Data=vecStockMin5Data[i];
+      if(!pStockMin5Data)
+         continue;
+      QString strTemp=pStockMin5Data->GetDateTime().left(5);
+      if(strTemp==strTempDate)
+      {
+          mBeginPos=i;
+          break;
+      }
     }
 
     strDateTime = strDateTime.trimmed();
@@ -376,14 +378,15 @@ int StockTdxFileData::GetNearestStockMin5Index(QString strDateTime)
 
     int mNearest5Mins=999999;
     int mNearestPos=-1;
-    for(int i=mBeginPos;i<vecStockMin5Data.size();i++)
+    //for(int i=mBeginPos;i<vecStockMin5Data.size();i++)
+    for(int i=vecStockMin5Data.size()-1;i>=mBeginPos;i--)
     {
        pStockMin5Data=vecStockMin5Data[i];
        if(!pStockMin5Data)
            continue;
        QString strCheckTime=vecStockMin5Data[i]->GetDateTime();
        strCheckTime = strCheckTime.trimmed();
-       QDateTime mCheckDateTime=QDateTime::fromString(strCheckTime ,"yyyy/MM/dd hh:mm");
+       QDateTime mCheckDateTime=Utils::ConverToDateTime(strCheckTime);//QDateTime::fromString(strCheckTime ,"yyyy/MM/dd hh:mm");
        int mCheckDateTime5Mins=mCheckDateTime.toTime_t()/300;
        int mDif5Mins=mDateTime5Mins-mCheckDateTime5Mins;
        mDif5Mins=qAbs(mDif5Mins);
@@ -396,12 +399,11 @@ int StockTdxFileData::GetNearestStockMin5Index(QString strDateTime)
            mNearest5Mins=mDif5Mins;
            mNearestPos=i;
        }
-   }
+    }
 
-   if(mNearestPos>=0)
-       return mNearestPos;
-
-    return -1;
+    if(mNearestPos>=0)
+      return mNearestPos;
+   return -1;
 
 }
 
@@ -474,6 +476,16 @@ bool StockTdxFileData::IsDataTypeValid(int mDataType)
     else
         return false;
 }
+
+int  StockTdxFileData::GetStockDataInfoSize(int mDataType)
+{
+    if(mDataType==STOCK_DATA_TYPE_DAY)
+        return vecStockDayData.size();
+    else if(mDataType==STOCK_DATA_TYPE_5MIN)
+        return vecStockMin5Data.size();
+    else
+        return 0;
+}
 //--------------------------------------------------------------------------
 static int m_data_index=0;
 bool StockTdxFileData::ReadAllStockDataFromStore(void)
@@ -544,6 +556,18 @@ bool StockTdxFileData::LoadStockDayFile(void)
     while (!in.atEnd()) {
         QString line = in.readLine();
         mLine++;
+        if(mLine==1)
+        {
+            QStringList list = line.split(" ");
+            if(list.size()!=4)
+            {
+                file.close();
+                return false;
+            }
+
+            strStockName=list[1];
+        }
+
      //   if(line.contains(QString::fromLocal8Bit("数据来源")))
      //       continue;
         if(mLine>2)
@@ -581,6 +605,7 @@ bool StockTdxFileData::LoadStockDayFile(void)
 
 bool StockTdxFileData::LoadFromDayFileRepairDate(StockTdxFileData *pExpStockData)
 {
+
     QFile file(strStockDayFilePath);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
         return false;
@@ -594,6 +619,17 @@ bool StockTdxFileData::LoadFromDayFileRepairDate(StockTdxFileData *pExpStockData
     while (!in.atEnd()) {
         QString line = in.readLine();
         mLine++;
+        if(mLine==1)
+        {
+            QStringList list = line.split(" ");
+            if(list.size()!=4)
+            {
+                file.close();
+                return false;
+            }
+            strStockName=list[1];
+        }
+
      //   if(line.contains(QString::fromLocal8Bit("数据来源")))
      //       continue;
         if(mLine>2)

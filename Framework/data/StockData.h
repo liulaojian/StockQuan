@@ -36,8 +36,12 @@ public:
 
     virtual bool IsDataTypeValid(int mDataType)=0;
 
+    virtual int  GetStockDataInfoSize(int mDataType)=0;
+
     virtual bool ReadAllStockDataFromStore(void)=0;
     virtual bool WriteAllStockDataToStore(void)=0;
+
+
 
 public:
     void SetStockName(QString name) {strStockName=name;}

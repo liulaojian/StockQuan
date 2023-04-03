@@ -15,8 +15,12 @@ SOURCES += \
     Framework/data/StockDataMgr.cpp \
     Framework/data/StockTdxFileData.cpp \
     Framework/function/FunTimeSharingDirectUp.cpp \
+    Framework/utils/Utils.cpp \
     Ui/StockChart.cpp \
+    dlgfunwait.cpp \
+    dlgresult.cpp \
     dlgstocklist.cpp \
+    dlgtimesharingdirectup.cpp \
     main.cpp \
     mainwindow.cpp \
     splash.cpp
@@ -28,14 +32,22 @@ HEADERS += \
     Framework/data/StockDataMgr.h \
     Framework/data/StockDataStruct.h \
     Framework/data/StockTdxFileData.h \
+    Framework/function/FunGlobal.h \
     Framework/function/FunTimeSharingDirectUp.h \
+    Framework/utils/Utils.h \
     Ui/StockChart.h \
+    dlgfunwait.h \
+    dlgresult.h \
     dlgstocklist.h \
+    dlgtimesharingdirectup.h \
     mainwindow.h \
     splash.h
 
 FORMS += \
+    dlgfunwait.ui \
+    dlgresult.ui \
     dlgstocklist.ui \
+    dlgtimesharingdirectup.ui \
     mainwindow.ui \
     splash.ui
 

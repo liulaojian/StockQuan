@@ -7,6 +7,7 @@
 #include "StockTdxFileData.h"
 //#include <thread>
 #include <QThreadPool>
+#include <QFileInfo>
 #include "StockDataLoadRunable.h"
 StockDataMgr* StockDataMgr::s_pIntance = nullptr;
 
@@ -46,16 +47,21 @@ bool StockDataMgr::Init(void)
 
     for(int i=0;i<vecStockFilePathXmlInfo.size();i++)
     {
-        QString strStockCode=vecStockFilePathXmlInfo[i]->strStockCode;
-        QString strStockName=vecStockFilePathXmlInfo[i]->strStockName;
+        QFileInfo file(vecStockFilePathXmlInfo[i]->strStockDayPath);
+        if(file.exists())
+        {
+            QString strStockCode=vecStockFilePathXmlInfo[i]->strStockCode;
+            QString strStockName=vecStockFilePathXmlInfo[i]->strStockName;
 
-        StockTdxFileData *pStockTdxFileData=new StockTdxFileData(strStockCode);
-        pStockTdxFileData->SetStockName(strStockName);
-        pStockTdxFileData->SetStockDayFilePath(vecStockFilePathXmlInfo[i]->strStockDayPath);
-        pStockTdxFileData->SetStockMin5FilePath(vecStockFilePathXmlInfo[i]->strStockMin5Path);
-        connect(pStockTdxFileData, SIGNAL(data_process(int)), this, SLOT(solt_data_process(int)));
-        vecStockData.push_back(pStockTdxFileData);
-        vecStockCodeList.push_back(strStockCode);
+            StockTdxFileData *pStockTdxFileData=new StockTdxFileData(strStockCode);
+            pStockTdxFileData->SetStockName(strStockName);
+            pStockTdxFileData->SetStockDayFilePath(vecStockFilePathXmlInfo[i]->strStockDayPath);
+            pStockTdxFileData->SetStockMin5FilePath(vecStockFilePathXmlInfo[i]->strStockMin5Path);
+            connect(pStockTdxFileData, SIGNAL(data_process(int)), this, SLOT(solt_data_process(int)));
+
+            vecStockData.push_back(pStockTdxFileData);
+            vecStockCodeList.push_back(strStockCode);
+        }
     }
 
     mMaxStockDataNums=vecStockData.size();
@@ -96,7 +102,22 @@ bool StockDataMgr::Init(void)
     return true;
 }
 
-
+bool StockDataMgr::doReInitStockList(void)
+{
+    QVector<StockData*>  vecNewStockData;
+    QVector<QString>    vecNewStockCodeList;
+    for(int i=0;i<vecStockData.size();i++)
+    {
+        if(vecStockData[i]->GetStockDataInfoSize(STOCK_DATA_TYPE_DAY)>0)
+        {
+            vecNewStockCodeList.push_back(vecStockData[i]->GetStockCode());
+            vecNewStockData.push_back(vecStockData[i]);
+        }
+    }
+    vecStockCodeList=vecNewStockCodeList;
+    vecStockData=vecNewStockData;
+    return true;
+}
 
 bool  StockDataMgr::IsExpStock(QString strStockCode)
 {
@@ -164,4 +185,18 @@ StockData* StockDataMgr::FindStockData(QString strStockCode)
    return nullptr;
 }
 
+QString StockDataMgr::GetStockName(QString strStockCode)
+{
+    auto iterator = std::find_if(vecStockData.begin(), vecStockData.end(), [&](auto pStockData) {
+                if (pStockData->GetStockCode() == strStockCode)
+                    return true;
+                else
+                    return  false;
+                });
 
+   if (iterator != vecStockData.end())
+   {
+      return (*iterator)->GetStockName();
+   }
+   return "";
+}

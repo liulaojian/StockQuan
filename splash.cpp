@@ -38,6 +38,7 @@ void Splash::showMainWindow()
     if(mainWin!=nullptr && mLoadPercent>=100)
     {
         timer->stop();
+        stockDataMgr()->doReInitStockList();
         mainWin->InitStockList();
         mainWin->show();  //showMaximized
         this->close();

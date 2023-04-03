@@ -10,6 +10,9 @@
 #include "StockDataMgr.h"
 
 #include "FunTimeSharingDirectUp.h"
+#include "dlgtimesharingdirectup.h"
+
+#include "dlgresult.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -57,18 +60,18 @@ MainWindow::MainWindow(QWidget *parent)
     ui->tableWidget->setColumnCount(5);
     ui->tableWidget->verticalHeader()->setVisible(false);
     QStringList header;
-    header<<"代码"<<"名称"<<"日数据"<<"5分钟数据"<<"现价";
+    header<<"序号"<<"代码"<<"名称"<<"日数据"<<"5分钟数据";
     ui->tableWidget->setHorizontalHeaderLabels(header);
     ui->tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->tableWidget->horizontalHeader()->setStyleSheet("QHeaderView::section{background:skyblue;color: black;}");
     ui->tableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
     ui->tableWidget->setSelectionMode(QAbstractItemView::SingleSelection);
 
-    ui->tableWidget->setColumnWidth(0,150);
-    ui->tableWidget->setColumnWidth(1,200);
+    ui->tableWidget->setColumnWidth(0,100);
+    ui->tableWidget->setColumnWidth(1,150);
     ui->tableWidget->setColumnWidth(2,150);
     ui->tableWidget->setColumnWidth(3,150);
-    ui->tableWidget->setColumnWidth(4,100);
+    ui->tableWidget->setColumnWidth(4,150);
 
     m_pStockListMenu=new QMenu(this);
     m_pActionOpen=new QAction(this);
@@ -102,21 +105,35 @@ void MainWindow::btn_jetteonfilter_click()
     //QMessageBox::information(this,"注意","btn_jetteonfilter_click");
     //ui->stackedWidget->setCurrentIndex(1);
 
+    DlgTimeSharingDirectUp dlg;
+
+    int ret=dlg.exec();
+
+    if (ret!=QDialog::Accepted)
+        return;
+
+    float fUpValue=dlg.GetUpValue();
+    float fDownValue=dlg.GetDownValue();
+
     StockData* pStockData=stockDataMgr()->FindStockData("SH000001");
     QSharedPointer<StockDataInfo> pStockDataInfo=pStockData->GetLastStockDataInfo(STOCK_DATA_TYPE_5MIN);
     QString strDateTime=pStockDataInfo->GetDateTime();
 
     QVector<QString> vecStockList=stockDataMgr()->GetStockCodeList();
 
-    FunTimeSharingDirectUp mFunTimeSharingDirectUp;
+    QSharedPointer<FunTimeSharingDirectUp> pFunTimeSharingDirectUp=QSharedPointer<FunTimeSharingDirectUp>(new FunTimeSharingDirectUp());
 
-    QVector<QString> vecResult=mFunTimeSharingDirectUp.doFunTimeSharingDirectUp(vecStockList,strDateTime);
+    QVector<QString> vecResult=pFunTimeSharingDirectUp->doFunTimeSharingDirectUp(vecStockList,strDateTime);
 
     for(int i=0;i<vecResult.size();i++)
     {
         qDebug()<<vecResult[i];
     }
 
+    DlgResult dlgResult;
+    dlgResult.SetResultList(vecResult);
+    dlgResult.InitList();
+    dlgResult.exec();
 }
 
 
@@ -168,30 +185,30 @@ bool MainWindow::InitStockList(void)
     {
         pStockData=vecStockData[i];
 
-        ui->tableWidget->setItem(i,0,new QTableWidgetItem(pStockData->GetStockCode()));
+        QString strId=QString::asprintf("%d",i);
+        ui->tableWidget->setItem(i,0,new QTableWidgetItem(strId));
         ui->tableWidget->item(i,0)->setTextAlignment(Qt::AlignHCenter|Qt::AlignVCenter);
-        QVariant data=QVariant::fromValue((void*)pStockData);
-        ui->tableWidget->item(i,0)->setData(Qt::UserRole,data);
 
-        ui->tableWidget->setItem(i,1,new QTableWidgetItem(pStockData->GetStockName()));
+        ui->tableWidget->setItem(i,1,new QTableWidgetItem(pStockData->GetStockCode()));
         ui->tableWidget->item(i,1)->setTextAlignment(Qt::AlignHCenter|Qt::AlignVCenter);
+        QVariant data=QVariant::fromValue((void*)pStockData);
+        ui->tableWidget->item(i,1)->setData(Qt::UserRole,data);
+
+        ui->tableWidget->setItem(i,2,new QTableWidgetItem(pStockData->GetStockName()));
+        ui->tableWidget->item(i,2)->setTextAlignment(Qt::AlignHCenter|Qt::AlignVCenter);
 
         pStockDataInfo=pStockData->GetLastStockDataInfo(STOCK_DATA_TYPE_DAY);
         if(pStockDataInfo)
         {
-            ui->tableWidget->setItem(i,2,new QTableWidgetItem(pStockDataInfo->GetDate()));
-            ui->tableWidget->item(i,2)->setTextAlignment(Qt::AlignHCenter|Qt::AlignVCenter);
-
-            QString strPrice=QString::asprintf("%.2f",pStockDataInfo->GetEndPrice());
-            ui->tableWidget->setItem(i,4,new QTableWidgetItem(strPrice));
-            ui->tableWidget->item(i,4)->setTextAlignment(Qt::AlignHCenter|Qt::AlignVCenter);
+            ui->tableWidget->setItem(i,3,new QTableWidgetItem(pStockDataInfo->GetDate()));
+            ui->tableWidget->item(i,3)->setTextAlignment(Qt::AlignHCenter|Qt::AlignVCenter);
         }
 
         pStockDataInfo=pStockData->GetLastStockDataInfo(STOCK_DATA_TYPE_5MIN);
         if(pStockDataInfo)
         {
-            ui->tableWidget->setItem(i,3,new QTableWidgetItem(pStockDataInfo->GetDateTime()));
-            ui->tableWidget->item(i,3)->setTextAlignment(Qt::AlignHCenter|Qt::AlignVCenter);
+            ui->tableWidget->setItem(i,4,new QTableWidgetItem(pStockDataInfo->GetDateTime()));
+            ui->tableWidget->item(i,4)->setTextAlignment(Qt::AlignHCenter|Qt::AlignVCenter);
         }
 
 

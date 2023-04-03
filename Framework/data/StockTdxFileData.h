@@ -29,6 +29,8 @@ public:
 
     virtual bool IsDataTypeValid(int mDataType);
 
+    virtual int  GetStockDataInfoSize(int mDataType);
+
     virtual bool ReadAllStockDataFromStore(void);
     virtual bool WriteAllStockDataToStore(void);
 

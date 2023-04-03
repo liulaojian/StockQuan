@@ -29,7 +29,13 @@ public:
    QVector<StockData*> & GetStockDataList(void) {return vecStockData;}
 
    QVector<QString> & GetStockCodeList(void) {return vecStockCodeList;}
+
+   QString GetStockName(QString strStockCode);
+
+   int GetStockCodeListNums(void) {return vecStockCodeList.size();}
    bool  IsExpStock(QString strStockCode);
+
+   bool doReInitStockList(void);
 
 signals:
     void stock_data_process(int index,int max_index);
