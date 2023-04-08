@@ -71,8 +71,8 @@ MainWindow::MainWindow(QWidget *parent)
     ui->tableWidget->setColumnWidth(0,100);
     ui->tableWidget->setColumnWidth(1,150);
     ui->tableWidget->setColumnWidth(2,150);
-    ui->tableWidget->setColumnWidth(3,150);
-    ui->tableWidget->setColumnWidth(4,150);
+    ui->tableWidget->setColumnWidth(3,250);
+    ui->tableWidget->setColumnWidth(4,250);
 
     m_pStockListMenu=new QMenu(this);
     m_pActionOpen=new QAction(this);
@@ -203,6 +203,7 @@ bool MainWindow::InitStockList(void)
     StockData* pStockData=nullptr;
 
     QSharedPointer<StockDataInfo> pStockDataInfo=nullptr;
+    QSharedPointer<StockDataInfo> pFirstStockDataInfo=nullptr;
 
     for(int i=0;i<vecStockData.size();i++)
     {
@@ -221,16 +222,24 @@ bool MainWindow::InitStockList(void)
         ui->tableWidget->item(i,2)->setTextAlignment(Qt::AlignHCenter|Qt::AlignVCenter);
 
         pStockDataInfo=pStockData->GetLastStockDataInfo(STOCK_DATA_TYPE_DAY);
+        pFirstStockDataInfo=pStockData->GetFirstStockDataInfo(STOCK_DATA_TYPE_DAY);
         if(pStockDataInfo)
         {
-            ui->tableWidget->setItem(i,3,new QTableWidgetItem(pStockDataInfo->GetDate()));
+            QString strInfo=pFirstStockDataInfo->GetDate();
+            strInfo+=" - ";
+            strInfo+=pStockDataInfo->GetDate();
+            ui->tableWidget->setItem(i,3,new QTableWidgetItem(strInfo));
             ui->tableWidget->item(i,3)->setTextAlignment(Qt::AlignHCenter|Qt::AlignVCenter);
         }
 
         pStockDataInfo=pStockData->GetLastStockDataInfo(STOCK_DATA_TYPE_5MIN);
+        pFirstStockDataInfo=pStockData->GetFirstStockDataInfo(STOCK_DATA_TYPE_5MIN);
         if(pStockDataInfo)
         {
-            ui->tableWidget->setItem(i,4,new QTableWidgetItem(pStockDataInfo->GetDateTime()));
+            QString strInfo=pFirstStockDataInfo->GetDateTime();
+            strInfo+=" - ";
+            strInfo+=pStockDataInfo->GetDateTime();
+            ui->tableWidget->setItem(i,4,new QTableWidgetItem(strInfo));
             ui->tableWidget->item(i,4)->setTextAlignment(Qt::AlignHCenter|Qt::AlignVCenter);
         }
 

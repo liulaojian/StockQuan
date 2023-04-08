@@ -10,5 +10,5 @@ public:
     virtual ~Utils();
 
    static QDateTime ConverToDateTime(QString strDateTime);
-
+   static int GetSysKernalNum(void);
 };

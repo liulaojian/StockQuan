@@ -1,5 +1,7 @@
 ﻿#include "Utils.h"
 #include <QStringList>
+#include <QEventLoop>
+#include <QProcess>
 Utils::Utils()
 {
 
@@ -31,3 +33,25 @@ QDateTime Utils::ConverToDateTime(QString strDateTime)
     QDateTime datetime(date,time);
     return datetime;
 }
+
+
+int Utils::GetSysKernalNum(void)
+{
+    QEventLoop loop;
+    QProcess command;
+    int num = 0;
+    QObject::connect(&command,QOverload<int,QProcess::ExitStatus>::of(&QProcess::finished),[&loop](){
+        loop.quit();
+    });
+    QObject::connect(&command,&QProcess::readyReadStandardOutput,[&command,&num](){
+        QString str = QString(command.readAllStandardOutput()) ;
+        QRegExp reg("[0-9]{1,2}");
+        int pos =reg.indexIn(str);
+        QString kernalnum =  str.mid(pos,reg.matchedLength());
+        num = kernalnum.toInt();
+    });
+    //command.start("wmic cpu get NumberOfCores");
+    command.start("wmic cpu get NumberOfLogicalProcessors");
+    loop.exec();
+    return num!=0 ? num:4;
+};

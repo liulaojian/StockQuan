@@ -1,7 +1,7 @@
-﻿#include "StockTdxFileData.h"
+﻿#include "StockTdxDatData.h"
 #include <QThread>
 #include <QFile>
-#include <QTextStream>
+#include <QDataStream>
 #include <QEventLoop>
 #include <thread>
 #include <QDebug>
@@ -12,19 +12,21 @@
 
 #include "Utils.h"
 
-StockTdxFileData::StockTdxFileData(QString stockcode):StockData(stockcode)
+
+
+StockTdxDatData::StockTdxDatData(QString stockcode):StockData(stockcode)
 {
 
 }
 
 
-StockTdxFileData::~StockTdxFileData()
+StockTdxDatData::~StockTdxDatData()
 {
 
 }
 
 
-bool StockTdxFileData::Init(void)
+bool StockTdxDatData::Init(void)
 {
 
 
@@ -32,7 +34,7 @@ bool StockTdxFileData::Init(void)
 }
 
 
-QSharedPointer<StockDataInfo> StockTdxFileData::FindStockDataInfo(QString strDate,QString strTime,int mDataType)
+QSharedPointer<StockDataInfo> StockTdxDatData::FindStockDataInfo(QString strDate,QString strTime,int mDataType)
 {
     if(mDataType==STOCK_DATA_TYPE_DAY)
         return FindStockDayDataInfo(strDate);
@@ -42,7 +44,7 @@ QSharedPointer<StockDataInfo> StockTdxFileData::FindStockDataInfo(QString strDat
         return nullptr;
 }
 
-QSharedPointer<StockDataInfo> StockTdxFileData::FindStockDayDataInfo(QString strDate)
+QSharedPointer<StockDataInfo> StockTdxDatData::FindStockDayDataInfo(QString strDate)
 {
     QMutexLocker locker(&mDayMutex);
     auto iterator = std::find_if(vecStockDayData.begin(), vecStockDayData.end(), [&](auto pStockDayData) {
@@ -59,7 +61,7 @@ QSharedPointer<StockDataInfo> StockTdxFileData::FindStockDayDataInfo(QString str
     return nullptr;
 }
 
-QSharedPointer<StockDataInfo> StockTdxFileData::FindStocMin5DataInfo(QString strDate,QString strTime)
+QSharedPointer<StockDataInfo> StockTdxDatData::FindStocMin5DataInfo(QString strDate,QString strTime)
 {
     QMutexLocker locker(&mMin5Mutex);
     auto iterator = std::find_if(vecStockMin5Data.begin(), vecStockMin5Data.end(), [&](auto pStockMin5Data) {
@@ -77,7 +79,7 @@ QSharedPointer<StockDataInfo> StockTdxFileData::FindStocMin5DataInfo(QString str
     return nullptr;
 }
 
-bool StockTdxFileData::IsStockDataInfoExist(QString strDate,QString strTime,int mDataType)
+bool StockTdxDatData::IsStockDataInfoExist(QString strDate,QString strTime,int mDataType)
 {
     if(mDataType==STOCK_DATA_TYPE_DAY)
     {
@@ -97,7 +99,7 @@ bool StockTdxFileData::IsStockDataInfoExist(QString strDate,QString strTime,int 
         return false;
 }
 
-bool StockTdxFileData::UpdateStockDataInfo(StockDataInfo* pUpdateDataInfo)
+bool StockTdxDatData::UpdateStockDataInfo(StockDataInfo* pUpdateDataInfo)
 {
     if(pUpdateDataInfo->GetCode()!=strStockCode)
         return false;
@@ -127,7 +129,7 @@ bool StockTdxFileData::UpdateStockDataInfo(StockDataInfo* pUpdateDataInfo)
     return true;
 }
 
-bool StockTdxFileData::AddStockDataInfo(StockDataInfo* pAddDataInfo)
+bool StockTdxDatData::AddStockDataInfo(StockDataInfo* pAddDataInfo)
 {
     if(pAddDataInfo->GetCode()!=strStockCode)
         return false;
@@ -156,7 +158,7 @@ bool StockTdxFileData::AddStockDataInfo(StockDataInfo* pAddDataInfo)
 }
 
 
-QVector<QSharedPointer<StockDataInfo>> StockTdxFileData::GetStockDataInfoList(QString strBeginDate,QString strEndDate,QString strBeginTime,
+QVector<QSharedPointer<StockDataInfo>> StockTdxDatData::GetStockDataInfoList(QString strBeginDate,QString strEndDate,QString strBeginTime,
                                                      QString strEndTime,int mDataType)
 {
     if(mDataType==STOCK_DATA_TYPE_DAY)
@@ -170,7 +172,7 @@ QVector<QSharedPointer<StockDataInfo>> StockTdxFileData::GetStockDataInfoList(QS
     }
 }
 
-QVector<QSharedPointer<StockDataInfo>> StockTdxFileData::GetStockDayDataInfoList(QString strBeginDate,QString strEndDate)
+QVector<QSharedPointer<StockDataInfo>> StockTdxDatData::GetStockDayDataInfoList(QString strBeginDate,QString strEndDate)
 {
     QVector<QSharedPointer<StockDataInfo>>  vecData;
 
@@ -198,7 +200,7 @@ QVector<QSharedPointer<StockDataInfo>> StockTdxFileData::GetStockDayDataInfoList
     return vecData;
 }
 
-QVector<QSharedPointer<StockDataInfo>> StockTdxFileData::GetStockMin5DataInfoList(QString strBeginDate,QString strEndDate,QString strBeginTime,QString strEndTime)
+QVector<QSharedPointer<StockDataInfo>> StockTdxDatData::GetStockMin5DataInfoList(QString strBeginDate,QString strEndDate,QString strBeginTime,QString strEndTime)
 {
     QVector<QSharedPointer<StockDataInfo>>  vecData;
 
@@ -236,7 +238,7 @@ QVector<QSharedPointer<StockDataInfo>> StockTdxFileData::GetStockMin5DataInfoLis
 
 }
 
-QVector<QSharedPointer<StockDataInfo>> &  StockTdxFileData::GetAllStockDataInfoList(int mDataType)
+QVector<QSharedPointer<StockDataInfo>> &  StockTdxDatData::GetAllStockDataInfoList(int mDataType)
 {
     if(mDataType==STOCK_DATA_TYPE_DAY)
         return vecStockDayData;
@@ -249,7 +251,7 @@ QVector<QSharedPointer<StockDataInfo>> &  StockTdxFileData::GetAllStockDataInfoL
 }
 
 //---
-int StockTdxFileData::GetStockDayIndex(QString strDate)
+int StockTdxDatData::GetStockDayIndex(QString strDate)
 {
     QMutexLocker locker(&mDayMutex);
     if(vecStockDayData.size()==0)
@@ -266,7 +268,7 @@ int StockTdxFileData::GetStockDayIndex(QString strDate)
     return -1;
 }
 
-int StockTdxFileData::GetNearestStockDayIndex(QString strDate)
+int StockTdxDatData::GetNearestStockDayIndex(QString strDate)
 {
     QMutexLocker locker(&mDayMutex);
     if(vecStockDayData.size()==0)
@@ -323,7 +325,7 @@ int StockTdxFileData::GetNearestStockDayIndex(QString strDate)
 }
 
 
-int  StockTdxFileData::GetStockMin5Index(QString strDateTime)
+int  StockTdxDatData::GetStockMin5Index(QString strDateTime)
 {
     if(vecStockMin5Data.size()==0)
             return -1;
@@ -348,7 +350,7 @@ int  StockTdxFileData::GetStockMin5Index(QString strDateTime)
      return -1;
 }
 
-int StockTdxFileData::GetNearestStockMin5Index(QString strDateTime)
+int StockTdxDatData::GetNearestStockMin5Index(QString strDateTime)
 {
     if(vecStockMin5Data.size()==0)
             return -1;
@@ -410,7 +412,7 @@ int StockTdxFileData::GetNearestStockMin5Index(QString strDateTime)
 
 }
 
-QSharedPointer<StockDataInfo> StockTdxFileData::GetLastStockDataInfo(int mDataType)
+QSharedPointer<StockDataInfo> StockTdxDatData::GetLastStockDataInfo(int mDataType)
 {
 
     if(mDataType==STOCK_DATA_TYPE_DAY)
@@ -429,7 +431,7 @@ QSharedPointer<StockDataInfo> StockTdxFileData::GetLastStockDataInfo(int mDataTy
         return nullptr;
 }
 
-QSharedPointer<StockDataInfo> StockTdxFileData::GetFirstStockDataInfo(int mDataType)
+QSharedPointer<StockDataInfo> StockTdxDatData::GetFirstStockDataInfo(int mDataType)
 {
     if(mDataType==STOCK_DATA_TYPE_DAY)
     {
@@ -448,7 +450,7 @@ QSharedPointer<StockDataInfo> StockTdxFileData::GetFirstStockDataInfo(int mDataT
 }
 
 
-QVector<QSharedPointer<StockDataInfo>> StockTdxFileData::GetStockDataInfoPreOfIndex(QString strDate,QString strTime,int mDataType,int prenums)
+QVector<QSharedPointer<StockDataInfo>> StockTdxDatData::GetStockDataInfoPreOfIndex(QString strDate,QString strTime,int mDataType,int prenums)
 {
     QVector<QSharedPointer<StockDataInfo>> vecData;
     if(prenums<=0)
@@ -460,7 +462,8 @@ QVector<QSharedPointer<StockDataInfo>> StockTdxFileData::GetStockDataInfoPreOfIn
             return vecData;
 
         int beginpos=indexpos-prenums+1;
-
+        if(beginpos<0)
+            return vecData;
         for(int i=beginpos;i<=indexpos;i++)
         {
            vecData.push_back(vecStockDayData[i]);
@@ -477,7 +480,8 @@ QVector<QSharedPointer<StockDataInfo>> StockTdxFileData::GetStockDataInfoPreOfIn
         if(indexpos<0)
             return vecData;
         int beginpos=indexpos-prenums+1;
-
+        if(beginpos<0)
+            return vecData;
         for(int i=beginpos;i<=indexpos;i++)
         {
            vecData.push_back(vecStockMin5Data[i]);
@@ -488,7 +492,7 @@ QVector<QSharedPointer<StockDataInfo>> StockTdxFileData::GetStockDataInfoPreOfIn
         return vecData;
 }
 
-bool StockTdxFileData::IsDataTypeValid(int mDataType)
+bool StockTdxDatData::IsDataTypeValid(int mDataType)
 {
     if(mDataType==STOCK_DATA_TYPE_DAY)
         return true;
@@ -498,7 +502,7 @@ bool StockTdxFileData::IsDataTypeValid(int mDataType)
         return false;
 }
 
-int  StockTdxFileData::GetStockDataInfoSize(int mDataType)
+int  StockTdxDatData::GetStockDataInfoSize(int mDataType)
 {
     if(mDataType==STOCK_DATA_TYPE_DAY)
         return vecStockDayData.size();
@@ -508,7 +512,7 @@ int  StockTdxFileData::GetStockDataInfoSize(int mDataType)
         return 0;
 }
 
-QString StockTdxFileData::GetNearestStockDateTime(QString strDate,QString strTime,int mDataType)
+QString StockTdxDatData::GetNearestStockDateTime(QString strDate,QString strTime,int mDataType)
 {
     if(mDataType==STOCK_DATA_TYPE_DAY)
     {
@@ -533,7 +537,7 @@ QString StockTdxFileData::GetNearestStockDateTime(QString strDate,QString strTim
 }
 //--------------------------------------------------------------------------
 static int m_data_index=0;
-bool StockTdxFileData::ReadAllStockDataFromStore(void)
+bool StockTdxDatData::ReadAllStockDataFromStore(void)
 {
 #if 0
     QEventLoop loop;
@@ -565,9 +569,9 @@ bool StockTdxFileData::ReadAllStockDataFromStore(void)
         StockData* pExpStockData=stockDataMgr()->FindStockData("SH000001");
         if(pExpStockData)
         {
-            StockTdxFileData *pTdxFileExpStockData=qobject_cast<StockTdxFileData*>(pExpStockData);
-            LoadFromDayFileRepairDate(pTdxFileExpStockData);
-            LoadFromMin5FileRepairDate(pTdxFileExpStockData);
+            StockTdxDatData *pTdxFileExpStockData=qobject_cast<StockTdxDatData*>(pExpStockData);
+            LoadFromDayFileRepairDate();
+            LoadFromMin5FileRepairDate();
         }
 
     }
@@ -579,7 +583,7 @@ bool StockTdxFileData::ReadAllStockDataFromStore(void)
     return true;
 }
 
-bool StockTdxFileData::WriteAllStockDataToStore(void)
+bool StockTdxDatData::WriteAllStockDataToStore(void)
 {
 
     return true;
@@ -588,128 +592,117 @@ bool StockTdxFileData::WriteAllStockDataToStore(void)
 //-----------------------------------
 
 
+typedef struct Tdxld_tag
+{
+    uint32_t dateday;
+    uint32_t beginprice;
+    uint32_t highprice;
+    uint32_t lowprice;
+    uint32_t endprice;
+    float totalprice;
+    uint32_t volume;
+    uint32_t reserve;
+}Tdxld;
 
-bool StockTdxFileData::LoadStockDayFile(void)
+typedef union Tdxld_union_tag
+{
+    Tdxld tdxld;
+    uint8_t data[32];
+}Tdxld_union;
+
+bool StockTdxDatData::LoadStockDayFile(void)
 {
    // qDebug()<<strStockDayFilePath<<"   m_nums=" <<m_data_index << "\n";
     QFile file(strStockDayFilePath);
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+    if (!file.open(QIODevice::ReadOnly))
         return false;
     QMutexLocker locker(&mDayMutex);
-    QTextStream in(&file);
-    int mLine=0;
+    QDataStream  in(&file);
+    Tdxld_union tdxld_union;
     while (!in.atEnd()) {
-        QString line = in.readLine();
-        mLine++;
-        if(mLine==1)
-        {
-            QStringList list = line.split(" ");
-            if(list.size()!=4)
-            {
-                file.close();
-                return false;
-            }
-
-            strStockName=list[1];
-        }
-
-     //   if(line.contains(QString::fromLocal8Bit("数据来源")))
-     //       continue;
-        if(mLine>2)
-        {
-            QStringList  arryVal=line.split('\t',QString::SkipEmptyParts);
-            if(arryVal.count()==7)
-            {
-                QString strDate=arryVal.at(0);
-                float  fBeginPrice=arryVal.at(1).toFloat();
-                float  fMaxPrice=arryVal.at(2).toFloat();
-                float  fMinPrice=arryVal.at(3).toFloat();
-                float  fEndPrice=arryVal.at(4).toFloat();
-                long   mTotalVolume=arryVal.at(5).toLong();
-                float  fTotalPrice=arryVal.at(6).toFloat();
-                QSharedPointer<StockDataInfo> pStockDayData=QSharedPointer<StockDataInfo>(new StockDataInfo());
-                pStockDayData->SetCode(strStockCode);
-                pStockDayData->SetDate(strDate);
-                pStockDayData->SetTime("");
-                pStockDayData->SetBeginPrice(fBeginPrice);
-                pStockDayData->SetMaxPrice(fMaxPrice);
-                pStockDayData->SetMinPrice(fMinPrice);
-                pStockDayData->SetEndPrice(fEndPrice);
-                pStockDayData->SetTotalVolume(mTotalVolume);
-                pStockDayData->SetTotalPrice(fTotalPrice);
-                pStockDayData->SetType(STOCK_DATA_TYPE_DAY);
-                vecStockDayData.push_back(pStockDayData);
-            }
+          int retsize =in.readRawData((char*)tdxld_union.data, sizeof(Tdxld_union));
+          if(retsize!=32)
+              break;
+          uint32_t dateday = tdxld_union.tdxld.dateday;
+          int   year = dateday / 10000;
+          int   month= (dateday % 10000)/100;
+          int   day= (dateday % 10000) % 100;
 
 
-        }
+          QString strDate = QString("%1/%2/%3").arg(year, 2, 10, QLatin1Char('0')).arg(month, 2, 10, QLatin1Char('0')).arg(day, 2, 10, QLatin1Char('0'));
+
+          float fBeginPrice = tdxld_union.tdxld.beginprice/100.0;
+          float fMaxPrice = tdxld_union.tdxld.highprice / 100.0;
+          float fMinPrice = tdxld_union.tdxld.lowprice / 100.0;
+          float fEndPrice = tdxld_union.tdxld.endprice / 100.0;
+          float fTotalPrice = tdxld_union.tdxld.totalprice;
+          uint32_t mTotalVolume = tdxld_union.tdxld.volume;
+
+          QSharedPointer<StockDataInfo> pStockDayData=QSharedPointer<StockDataInfo>(new StockDataInfo());
+          pStockDayData->SetCode(strStockCode);
+          pStockDayData->SetDate(strDate);
+          pStockDayData->SetTime("");
+          pStockDayData->SetBeginPrice(fBeginPrice);
+          pStockDayData->SetMaxPrice(fMaxPrice);
+          pStockDayData->SetMinPrice(fMinPrice);
+          pStockDayData->SetEndPrice(fEndPrice);
+          pStockDayData->SetTotalVolume(mTotalVolume);
+          pStockDayData->SetTotalPrice(fTotalPrice);
+          pStockDayData->SetType(STOCK_DATA_TYPE_DAY);
+          vecStockDayData.push_back(pStockDayData);
+
     }
+
     file.close();
     return true;
 }
 
-bool StockTdxFileData::LoadFromDayFileRepairDate(StockTdxFileData *pExpStockData)
+bool StockTdxDatData::LoadFromDayFileRepairDate(void)
 {
 
     QFile file(strStockDayFilePath);
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+    if (!file.open(QIODevice::ReadOnly))
         return false;
-
-
-
     QVector<QSharedPointer<StockDataInfo>> vecTempStockDayData;
 
-    QTextStream in(&file);
-    int mLine=0;
+    QDataStream  in(&file);
+    Tdxld_union tdxld_union;
     while (!in.atEnd()) {
-        QString line = in.readLine();
-        mLine++;
-        if(mLine==1)
-        {
-            QStringList list = line.split(" ");
-            if(list.size()!=4)
-            {
-                file.close();
-                return false;
-            }
-            strStockName=list[1];
-        }
+          int retsize =in.readRawData((char*)tdxld_union.data, sizeof(Tdxld_union));
+          if(retsize!=32)
+              break;
+          uint32_t dateday = tdxld_union.tdxld.dateday;
+          int   year = dateday / 10000;
+          int   month= (dateday % 10000)/100;
+          int   day= (dateday % 10000) % 100;
 
-     //   if(line.contains(QString::fromLocal8Bit("数据来源")))
-     //       continue;
-        if(mLine>2)
-        {
-            QStringList  arryVal=line.split('\t',QString::SkipEmptyParts);
-            if(arryVal.count()==7)
-            {
-                QString strDate=arryVal.at(0);
-                float  fBeginPrice=arryVal.at(1).toFloat();
-                float  fMaxPrice=arryVal.at(2).toFloat();
-                float  fMinPrice=arryVal.at(3).toFloat();
-                float  fEndPrice=arryVal.at(4).toFloat();
-                long   mTotalVolume=arryVal.at(5).toLong();
-                float  fTotalPrice=arryVal.at(6).toFloat();
-                QSharedPointer<StockDataInfo> pStockDayData=QSharedPointer<StockDataInfo>(new StockDataInfo());
-                pStockDayData->SetCode(strStockCode);
-                pStockDayData->SetDate(strDate);
-                pStockDayData->SetTime("");
-                pStockDayData->SetBeginPrice(fBeginPrice);
-                pStockDayData->SetMaxPrice(fMaxPrice);
-                pStockDayData->SetMinPrice(fMinPrice);
-                pStockDayData->SetEndPrice(fEndPrice);
-                pStockDayData->SetTotalVolume(mTotalVolume);
-                pStockDayData->SetTotalPrice(fTotalPrice);
-                pStockDayData->SetType(STOCK_DATA_TYPE_DAY);
-                vecTempStockDayData.push_back(pStockDayData);
-            }
-        }
+          QString strDate = QString("%1/%2/%3").arg(year, 2, 10, QLatin1Char('0')).arg(month, 2, 10, QLatin1Char('0')).arg(day, 2, 10, QLatin1Char('0'));
+          float fBeginPrice = tdxld_union.tdxld.beginprice/100.0;
+          float fMaxPrice = tdxld_union.tdxld.highprice / 100.0;
+          float fMinPrice = tdxld_union.tdxld.lowprice / 100.0;
+          float fEndPrice = tdxld_union.tdxld.endprice / 100.0;
+          float fTotalPrice = tdxld_union.tdxld.totalprice;
+          uint32_t mTotalVolume = tdxld_union.tdxld.volume;
+
+          QSharedPointer<StockDataInfo> pStockDayData=QSharedPointer<StockDataInfo>(new StockDataInfo());
+          pStockDayData->SetCode(strStockCode);
+          pStockDayData->SetDate(strDate);
+          pStockDayData->SetTime("");
+          pStockDayData->SetBeginPrice(fBeginPrice);
+          pStockDayData->SetMaxPrice(fMaxPrice);
+          pStockDayData->SetMinPrice(fMinPrice);
+          pStockDayData->SetEndPrice(fEndPrice);
+          pStockDayData->SetTotalVolume(mTotalVolume);
+          pStockDayData->SetTotalPrice(fTotalPrice);
+          pStockDayData->SetType(STOCK_DATA_TYPE_DAY);
+          vecTempStockDayData.push_back(pStockDayData);
+
     }
+
     file.close();
 
     if(vecTempStockDayData.size()==0)
             return false;
-
-
 
     QSharedPointer<StockDataInfo> pStockDayData=nullptr;
 
@@ -791,117 +784,125 @@ bool StockTdxFileData::LoadFromDayFileRepairDate(StockTdxFileData *pExpStockData
     return true;
 }
 
-bool StockTdxFileData::LoadStockMin5File(void)
+
+typedef struct Tdxlc_tag
+{
+    uint16_t datetime;
+    uint16_t mins;
+    float beginprice;
+    float highprice;
+    float lowprice;
+    float endprice;
+    float totalprice;
+    uint32_t volume;
+    uint32_t reserve;
+}Tdxlc;
+
+typedef union Tdxlc_union_tag
+{
+    Tdxlc tdxlc;
+    uint8_t data[32];
+}Tdxlc_union;
+
+bool StockTdxDatData::LoadStockMin5File(void)
 {
     QFile file(strStockMin5FilePath);
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+    if (!file.open(QIODevice::ReadOnly))
         return false;
     QMutexLocker locker(&mMin5Mutex);
-    QTextStream in(&file);
-    int mLine=0;
-    while (!in.atEnd()) {
-        QString line = in.readLine();
-        mLine++;
-        //if(line.contains(QString::fromLocal8Bit("数据来源")))
-        //    continue;
-        if(mLine>2)
-        {
-            QStringList  arryVal=line.split('\t',QString::SkipEmptyParts);
-            if(arryVal.count()==8)
-            {
-                QString strDate=arryVal.at(0);
-                QString strTime=arryVal.at(1);
-                if(strTime.length()==4)
-                {
-                    QString strTemp=strTime.left(2);
-                    QString strTemp2=strTime.right(2);
-                    strTime=strTemp;
-                    strTime+=":";
-                    strTime+=strTemp2;
-                }
-                float  fBeginPrice=arryVal.at(2).toFloat();
-                float  fMaxPrice=arryVal.at(3).toFloat();
-                float  fMinPrice=arryVal.at(4).toFloat();
-                float  fEndPrice=arryVal.at(5).toFloat();
-                long   mTotalVolume=arryVal.at(6).toLong();
-                float  fTotalPrice=arryVal.at(7).toFloat();
+    QDataStream in(&file);
 
-               QSharedPointer<StockDataInfo> pStockMin5Data=QSharedPointer<StockDataInfo>(new StockDataInfo());
-               pStockMin5Data->SetCode(strStockCode);
-               pStockMin5Data->SetDate(strDate);
-               pStockMin5Data->SetTime(strTime);
-               pStockMin5Data->SetBeginPrice(fBeginPrice);
-               pStockMin5Data->SetMaxPrice(fMaxPrice);
-               pStockMin5Data->SetMinPrice(fMinPrice);
-               pStockMin5Data->SetEndPrice(fEndPrice);
-               pStockMin5Data->SetTotalVolume(mTotalVolume);
-               pStockMin5Data->SetTotalPrice(fTotalPrice);
-               pStockMin5Data->SetType(STOCK_DATA_TYPE_5MIN);
-               vecStockMin5Data.push_back(pStockMin5Data);
+    Tdxlc_union tdxlc_union;
+    while (!in.atEnd())
+    {
+        int retsize =in.readRawData((char*)tdxlc_union.data, sizeof(Tdxlc_union));
+        if(retsize!=32)
+            break;
+        int   year = floor(tdxlc_union.tdxlc.datetime / 2048) + 2004;
+        int   month = floor((tdxlc_union.tdxlc.datetime %2048) / 100);
+        int day = (tdxlc_union.tdxlc.datetime %2048)%100;
+        int hour = tdxlc_union.tdxlc.mins / 60;
+        int min= tdxlc_union.tdxlc.mins % 60;
 
+        QString strDate = QString("%1/%2/%3").arg(year, 2, 10, QLatin1Char('0')).arg(month, 2, 10, QLatin1Char('0')).arg(day, 2, 10, QLatin1Char('0'));
+        QString strTime = QString("%1:%2").arg(hour, 2, 10, QLatin1Char('0')).arg(min, 2, 10, QLatin1Char('0'));
 
-            }
-        }
+        float fBeginPrice = tdxlc_union.tdxlc.beginprice;
+        float fMaxPrice = tdxlc_union.tdxlc.highprice ;
+        float fMinPrice = tdxlc_union.tdxlc.lowprice ;
+        float fEndPrice = tdxlc_union.tdxlc.endprice ;
+        float fTotalPrice = tdxlc_union.tdxlc.totalprice;
+        uint32_t mTotalVolume = tdxlc_union.tdxlc.volume;
+
+        QSharedPointer<StockDataInfo> pStockMin5Data=QSharedPointer<StockDataInfo>(new StockDataInfo());
+        pStockMin5Data->SetCode(strStockCode);
+        pStockMin5Data->SetDate(strDate);
+        pStockMin5Data->SetTime(strTime);
+        pStockMin5Data->SetBeginPrice(fBeginPrice);
+        pStockMin5Data->SetMaxPrice(fMaxPrice);
+        pStockMin5Data->SetMinPrice(fMinPrice);
+        pStockMin5Data->SetEndPrice(fEndPrice);
+        pStockMin5Data->SetTotalVolume(mTotalVolume);
+        pStockMin5Data->SetTotalPrice(fTotalPrice);
+        pStockMin5Data->SetType(STOCK_DATA_TYPE_5MIN);
+        vecStockMin5Data.push_back(pStockMin5Data);
+
 
     }
+
+
     return true;
 }
 
-bool  StockTdxFileData::LoadFromMin5FileRepairDate(StockTdxFileData *pExpStockData)
+bool  StockTdxDatData::LoadFromMin5FileRepairDate(void)
 {
     QFile file(strStockMin5FilePath);
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+    if (!file.open(QIODevice::ReadOnly))
         return false;
 
     QVector<QSharedPointer<StockDataInfo>> vecTempStockMin5Data;
 
-    QTextStream in(&file);
-    int mLine=0;
-    while (!in.atEnd()) {
-        QString line = in.readLine();
-        mLine++;
-        //if(line.contains(QString::fromLocal8Bit("数据来源")))
-        //    continue;
-        if(mLine>2)
-        {
-            QStringList  arryVal=line.split('\t',QString::SkipEmptyParts);
-            if(arryVal.count()==8)
-            {
-                QString strDate=arryVal.at(0);
-                QString strTime=arryVal.at(1);
-                if(strTime.length()==4)
-                {
-                    QString strTemp=strTime.left(2);
-                    QString strTemp2=strTime.right(2);
-                    strTime=strTemp;
-                    strTime+=":";
-                    strTime+=strTemp2;
-                }
-                float  fBeginPrice=arryVal.at(2).toFloat();
-                float  fMaxPrice=arryVal.at(3).toFloat();
-                float  fMinPrice=arryVal.at(4).toFloat();
-                float  fEndPrice=arryVal.at(5).toFloat();
-                long   mTotalVolume=arryVal.at(6).toLong();
-                float  fTotalPrice=arryVal.at(7).toFloat();
 
-               QSharedPointer<StockDataInfo> pStockMin5Data= QSharedPointer<StockDataInfo>(new StockDataInfo());
-               pStockMin5Data->SetCode(strStockCode);
-               pStockMin5Data->SetDate(strDate);
-               pStockMin5Data->SetTime(strTime);
-               pStockMin5Data->SetBeginPrice(fBeginPrice);
-               pStockMin5Data->SetMaxPrice(fMaxPrice);
-               pStockMin5Data->SetMinPrice(fMinPrice);
-               pStockMin5Data->SetEndPrice(fEndPrice);
-               pStockMin5Data->SetTotalVolume(mTotalVolume);
-               pStockMin5Data->SetTotalPrice(fTotalPrice);
-               pStockMin5Data->SetType(STOCK_DATA_TYPE_5MIN);
-               vecTempStockMin5Data.push_back(pStockMin5Data);
+    QDataStream in(&file);
 
+    Tdxlc_union tdxlc_union;
+    while (!in.atEnd())
+    {
+        int retsize =in.readRawData((char*)tdxlc_union.data, sizeof(Tdxlc_union));
+        if(retsize!=32)
+            break;
+        int   year = floor(tdxlc_union.tdxlc.datetime / 2048) + 2004;
+        int   month = floor((tdxlc_union.tdxlc.datetime %2048) / 100);
+        int day = (tdxlc_union.tdxlc.datetime %2048)%100;
+        int hour = tdxlc_union.tdxlc.mins / 60;
+        int min= tdxlc_union.tdxlc.mins % 60;
 
-            }
-        }
+        QString strDate = QString("%1/%2/%3").arg(year, 2, 10, QLatin1Char('0')).arg(month, 2, 10, QLatin1Char('0')).arg(day, 2, 10, QLatin1Char('0'));
+        QString strTime = QString("%1:%2").arg(hour, 2, 10, QLatin1Char('0')).arg(min, 2, 10, QLatin1Char('0'));
+
+        float fBeginPrice = tdxlc_union.tdxlc.beginprice;
+        float fMaxPrice = tdxlc_union.tdxlc.highprice ;
+        float fMinPrice = tdxlc_union.tdxlc.lowprice ;
+        float fEndPrice = tdxlc_union.tdxlc.endprice ;
+        float fTotalPrice = tdxlc_union.tdxlc.totalprice;
+        uint32_t mTotalVolume = tdxlc_union.tdxlc.volume;
+
+        QSharedPointer<StockDataInfo> pStockMin5Data=QSharedPointer<StockDataInfo>(new StockDataInfo());
+        pStockMin5Data->SetCode(strStockCode);
+        pStockMin5Data->SetDate(strDate);
+        pStockMin5Data->SetTime(strTime);
+        pStockMin5Data->SetBeginPrice(fBeginPrice);
+        pStockMin5Data->SetMaxPrice(fMaxPrice);
+        pStockMin5Data->SetMinPrice(fMinPrice);
+        pStockMin5Data->SetEndPrice(fEndPrice);
+        pStockMin5Data->SetTotalVolume(mTotalVolume);
+        pStockMin5Data->SetTotalPrice(fTotalPrice);
+        pStockMin5Data->SetType(STOCK_DATA_TYPE_5MIN);
+        vecTempStockMin5Data.push_back(pStockMin5Data);
+
 
     }
+
 
     if(vecTempStockMin5Data.size()==0)
             return false;

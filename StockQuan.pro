@@ -13,6 +13,7 @@ SOURCES += \
     Framework/data/StockData.cpp \
     Framework/data/StockDataLoadRunable.cpp \
     Framework/data/StockDataMgr.cpp \
+    Framework/data/StockTdxDatData.cpp \
     Framework/data/StockTdxFileData.cpp \
     Framework/function/FunTimeSharingDirectUp.cpp \
     Framework/utils/Utils.cpp \
@@ -32,6 +33,7 @@ HEADERS += \
     Framework/data/StockDataLoadRunable.h \
     Framework/data/StockDataMgr.h \
     Framework/data/StockDataStruct.h \
+    Framework/data/StockTdxDatData.h \
     Framework/data/StockTdxFileData.h \
     Framework/function/FunGlobal.h \
     Framework/function/FunTimeSharingDirectUp.h \

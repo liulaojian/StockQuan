@@ -51,5 +51,7 @@ void Splash::solt_stock_data_process(int index,int max_index)
     qDebug()<<"index="<<index<<"  maxindex="<<max_index<<"\n";
     float f_percent=(index*100.0)/max_index;
     mLoadPercent=f_percent;
+    if(index>=max_index)
+        mLoadPercent=100;
     ui->progressBar->setValue(mLoadPercent);
 }

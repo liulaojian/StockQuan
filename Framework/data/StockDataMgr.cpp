@@ -4,11 +4,15 @@
 #include <QDebug>
 #include <QDomDocument>
 #include <QFile>
-#include "StockTdxFileData.h"
+#include "StockTdxDatData.h"
 //#include <thread>
 #include <QThreadPool>
 #include <QFileInfo>
 #include "StockDataLoadRunable.h"
+#include "Utils.h"
+
+#define TDXDir  "D:\\new_jyplug"
+
 StockDataMgr* StockDataMgr::s_pIntance = nullptr;
 
 StockDataMgr::StockDataMgr()
@@ -47,21 +51,58 @@ bool StockDataMgr::Init(void)
 
     for(int i=0;i<vecStockFilePathXmlInfo.size();i++)
     {
-        QFileInfo file(vecStockFilePathXmlInfo[i]->strStockDayPath);
-        if(file.exists())
-        {
+       // QFileInfo file(vecStockFilePathXmlInfo[i]->strStockDayPath);
+       // if(file.exists())
+       // {
             QString strStockCode=vecStockFilePathXmlInfo[i]->strStockCode;
             QString strStockName=vecStockFilePathXmlInfo[i]->strStockName;
 
-            StockTdxFileData *pStockTdxFileData=new StockTdxFileData(strStockCode);
-            pStockTdxFileData->SetStockName(strStockName);
-            pStockTdxFileData->SetStockDayFilePath(vecStockFilePathXmlInfo[i]->strStockDayPath);
-            pStockTdxFileData->SetStockMin5FilePath(vecStockFilePathXmlInfo[i]->strStockMin5Path);
-            connect(pStockTdxFileData, SIGNAL(data_process(int)), this, SLOT(solt_data_process(int)));
+            StockTdxDatData *pStockTdxDatData=new StockTdxDatData(strStockCode);
+            pStockTdxDatData->SetStockName(strStockName);
 
-            vecStockData.push_back(pStockTdxFileData);
-            vecStockCodeList.push_back(strStockCode);
-        }
+            QString strDayPath=TDXDir;
+            QString strDayName=strStockCode.toLower();
+            strDayName+=".day";
+            strDayPath+="\\vipdoc";
+            if(strStockCode.left(2)=="SH")
+            {
+                strDayPath+="\\sh\\lday\\";
+                strDayPath+=strDayName;
+            }
+            else
+            {
+                strDayPath+="\\sz\\lday\\";
+                strDayPath+=strDayName;
+            }
+
+             QString strMin5Path=TDXDir;
+             QString strMin5Name=strStockCode.toLower();
+             strMin5Name+=".lc5";
+             strMin5Path+="\\vipdoc";
+             if(strStockCode.left(2)=="SH")
+             {
+                 strMin5Path+="\\sh\\fzline\\";
+                 strMin5Path+=strMin5Name;
+             }
+             else
+             {
+                 strMin5Path+="\\sz\\fzline\\";
+                 strMin5Path+=strMin5Name;
+             }
+
+             QFileInfo dayFileInfo(strDayPath);
+             QFileInfo min5FileInfo(strMin5Path);
+
+            if(dayFileInfo.exists() && min5FileInfo.exists())
+            {
+                pStockTdxDatData->SetStockDayFilePath(strDayPath);
+                pStockTdxDatData->SetStockMin5FilePath(strMin5Path);
+                connect(pStockTdxDatData, SIGNAL(data_process(int)), this, SLOT(solt_data_process(int)));
+
+                vecStockData.push_back(pStockTdxDatData);
+                vecStockCodeList.push_back(strStockCode);
+            }
+       // }
     }
 
     mMaxStockDataNums=vecStockData.size();
@@ -80,25 +121,33 @@ bool StockDataMgr::Init(void)
     if(!pExpStockData)
         return false;
 
+
     pExpStockData->Init();
     pExpStockData->ReadAllStockDataFromStore();
+
+     StockTdxDatData *pExpTdxStockDatData=qobject_cast<StockTdxDatData*>(pExpStockData);
 
     //QVector<QSharedPointer<StockDataInfo>> vecData=pExpStockData->GetStockDataInfoList("2022/04/19","2022/05/06","09:30","15:00",STOCK_DATA_TYPE_5MIN);
 
     //QVector<QSharedPointer<StockDataInfo>> vecData=pExpStockData->GetStockDataInfoList("2022/04/01","2022/05/06");
 
-    QThreadPool::globalInstance()->setMaxThreadCount(12);
+    int kernelnums=Utils::GetSysKernalNum();
+    QThreadPool::globalInstance()->setMaxThreadCount(kernelnums); //12
 
     for(int i=0;i<vecStockData.size();i++)
     {
         if(vecStockData[i]->GetStockCode()!="SH000001")
         {
+            StockTdxDatData *pTdxStockDatData=qobject_cast<StockTdxDatData*>(vecStockData[i]);
+            pTdxStockDatData->SetStockExpTdxDatData(pExpTdxStockDatData);
             StockDataLoadRunable* task = new StockDataLoadRunable(vecStockData[i]);
             task->setAutoDelete(true);
             QThreadPool::globalInstance()->start(task);
         }
     }
-
+   // QThreadPool::globalInstance()->waitForDone();
+   // pExpStockData=FindStockData("SZ002487");
+   // QVector<QSharedPointer<StockDataInfo>> vecData=pExpStockData->GetStockDataInfoList("2023/04/04","2023/05/06","09:30","15:00",STOCK_DATA_TYPE_5MIN);
     return true;
 }
 
